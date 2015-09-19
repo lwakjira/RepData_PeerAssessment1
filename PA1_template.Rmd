@@ -5,9 +5,9 @@ output:
     self_contained: no
 ---
 
-Loading and preprocessing the data
-
+Loading and preprocessing the data and necessary package
 ```{r, echo=TRUE}
+library(knitr)
 activity <- "./activity.csv"
 activity_data <- read.table(activity, header=TRUE, sep=",", stringsAsFactors=FALSE, dec=".")
 activity_data$date <- as.Date(activity_data$date, "%Y-%m-%d")

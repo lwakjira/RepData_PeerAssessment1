@@ -66,7 +66,9 @@ img {
 </div>
 
 
-<p>Loading and preprocessing the data</p>
+<p>Loading and preprocessing the data and necessary package</p>
+<pre class="r"><code>library(knitr)</code></pre>
+<pre><code>## Warning: package &#39;knitr&#39; was built under R version 3.2.2</code></pre>
 <pre class="r"><code>activity &lt;- &quot;./activity.csv&quot;
 activity_data &lt;- read.table(activity, header=TRUE, sep=&quot;,&quot;, stringsAsFactors=FALSE, dec=&quot;.&quot;)
 activity_data$date &lt;- as.Date(activity_data$date, &quot;%Y-%m-%d&quot;)</code></pre>
