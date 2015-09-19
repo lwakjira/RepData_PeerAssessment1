@@ -1,25 +1,76 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
+title: "Activity Monitoring Data Analysis"
+output:
   html_document:
-    keep_md: true
+    self_contained: no
 ---
 
+Loading and preprocessing the data
 
-## Loading and preprocessing the data
+```{r, echo=TRUE}
+activity <- "./activity.csv"
+activity_data <- read.table(activity, header=TRUE, sep=",", stringsAsFactors=FALSE, dec=".")
+activity_data$date <- as.Date(activity_data$date, "%Y-%m-%d")
+```
+
+Mean total number of steps taken per day
+
+```{r, echo=TRUE}
+MeanByDay <- aggregate(steps ~ date, activity_data, mean)
+barplot(height=MeanByDay$steps, names.arg=MeanByDay$date, xlab="day", ylab="Average Number of Steps",main="Average Total Number of Steps Taken per Day")
+```
+
+Sum, mean, median number of steps taken per day
+
+```{r, echo=TRUE}
+SumByDay <- aggregate(steps ~ date, activity_data, sum)
+barplot(height=SumByDay$steps, names.arg=SumByDay$date, xlab="day", ylab="Median Number of Steps",main="Total Number of Steps Taken per Day",col="blue")
+mean(SumByDay$steps)
+median(SumByDay$steps)
+max_steps <- max(activity_data$steps,na.rm=TRUE)
+
+abline(h=mean(SumByDay$steps, na.rm=TRUE), col="orange", lwd=2)
+abline(h=median(SumByDay$steps, na.rm=TRUE), col="black", lwd=2)
+```
+Return interval with maximum steps
+```{r, echo=TRUE}
+na.omit(activity_data[activity_data$steps==max(activity_data$steps,na.rm=TRUE),])
+```
 
 
+Rows with NA
+```{r, echo=TRUE}
+sum(is.na(activity_data))
+```
 
-## What is mean total number of steps taken per day?
+Replace NA with Mean
+```{r, echo=TRUE}
+MeanByInterval <- aggregate(steps ~ interval, activity_data, mean)
+actMerge <- merge(activity_data, MeanByInterval, by="interval", suffixes=c(".act", ".mn"))
+act_mss_rep<-activity_data
+act_mss_rep[which(is.na(act_mss_rep$steps)),"steps"] <- actMerge[which(is.na(act_mss_rep$steps)),"steps.mn"]
+```
 
+Sum, mean, median number of steps taken per day - Non-Missing Steps
 
+```{r, echo=TRUE}
+SumByDayNoMss <- aggregate(steps ~ date, act_mss_rep, sum)
+barplot(height=SumByDayNoMss$steps, names.arg=SumByDayNoMss$date, xlab="day", ylab="Median Number of Steps",main="Total Number of Steps Taken per Day (Non-Missing Steps)",col="blue")
+mean(SumByDayNoMss$steps)
+median(SumByDayNoMss$steps)
 
-## What is the average daily activity pattern?
+abline(h=mean(SumByDayNoMss$steps, na.rm=TRUE), col="orange", lwd=2)
+abline(h=median(SumByDayNoMss$steps, na.rm=TRUE), col="black", lwd=2)
 
+```
 
+Steps by Interval - Weekday vs Weekend
+```{r, echo=TRUE}
+act_mss_rep$weekdays <-weekdays(act_mss_rep$date)
+MeanByIntNoMssWknd <- aggregate(steps ~ interval, act_mss_rep[act_mss_rep$weekdays %in% c("Saturday","Sunday"),], mean)
+MeanByIntNoMssWkdy <- aggregate(steps ~ interval, act_mss_rep[!(act_mss_rep$weekdays %in% c("Saturday","Sunday")),], mean)
 
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
+par(mfrow=c(2,1))
+plot(MeanByIntNoMssWknd$interval, MeanByIntNoMssWknd$steps, type="l", col="orange",main="Weekend",xlab="Interval",ylab="Average Num of Steps")
+plot(MeanByIntNoMssWkdy$interval, MeanByIntNoMssWkdy$steps, type="l", col="black",main="Weekday",xlab="Interval",ylab="Average Num of Steps")
+```

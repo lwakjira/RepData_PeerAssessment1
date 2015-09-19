@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Activity Monitoring Data Analysis</title>
+
+<script src="PA1_template_files/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="PA1_template_files/bootstrap-3.3.1/css/bootstrap.min.css" rel="stylesheet" />
+<script src="PA1_template_files/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="PA1_template_files/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="PA1_template_files/bootstrap-3.3.1/shim/respond.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="PA1_template_files/highlight/default.css"
+      type="text/css" />
+<script src="PA1_template_files/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+
+<div id="header">
+<h1 class="title">Activity Monitoring Data Analysis</h1>
+</div>
+
+
+<p>Loading and preprocessing the data</p>
+<pre class="r"><code>activity &lt;- &quot;./activity.csv&quot;
+activity_data &lt;- read.table(activity, header=TRUE, sep=&quot;,&quot;, stringsAsFactors=FALSE, dec=&quot;.&quot;)
+activity_data$date &lt;- as.Date(activity_data$date, &quot;%Y-%m-%d&quot;)</code></pre>
+<p>Mean total number of steps taken per day</p>
+<pre class="r"><code>MeanByDay &lt;- aggregate(steps ~ date, activity_data, mean)
+barplot(height=MeanByDay$steps, names.arg=MeanByDay$date, xlab=&quot;day&quot;, ylab=&quot;Average Number of Steps&quot;,main=&quot;Average Total Number of Steps Taken per Day&quot;)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-2-1.png" title="" alt="" width="672" /></p>
+<p>Sum, mean, median number of steps taken per day</p>
+<pre class="r"><code>SumByDay &lt;- aggregate(steps ~ date, activity_data, sum)
+barplot(height=SumByDay$steps, names.arg=SumByDay$date, xlab=&quot;day&quot;, ylab=&quot;Median Number of Steps&quot;,main=&quot;Total Number of Steps Taken per Day&quot;,col=&quot;blue&quot;)
+mean(SumByDay$steps)</code></pre>
+<pre><code>## [1] 10766.19</code></pre>
+<pre class="r"><code>median(SumByDay$steps)</code></pre>
+<pre><code>## [1] 10765</code></pre>
+<pre class="r"><code>max_steps &lt;- max(activity_data$steps,na.rm=TRUE)
+
+abline(h=mean(SumByDay$steps, na.rm=TRUE), col=&quot;orange&quot;, lwd=2)
+abline(h=median(SumByDay$steps, na.rm=TRUE), col=&quot;black&quot;, lwd=2)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-3-1.png" title="" alt="" width="672" /> Return interval with maximum steps</p>
+<pre class="r"><code>na.omit(activity_data[activity_data$steps==max(activity_data$steps,na.rm=TRUE),])</code></pre>
+<pre><code>##       steps       date interval
+## 16492   806 2012-11-27      615</code></pre>
+<p>Rows with NA</p>
+<pre class="r"><code>sum(is.na(activity_data))</code></pre>
+<pre><code>## [1] 2304</code></pre>
+<p>Replace NA with Mean</p>
+<pre class="r"><code>MeanByInterval &lt;- aggregate(steps ~ interval, activity_data, mean)
+actMerge &lt;- merge(activity_data, MeanByInterval, by=&quot;interval&quot;, suffixes=c(&quot;.act&quot;, &quot;.mn&quot;))
+act_mss_rep&lt;-activity_data
+act_mss_rep[which(is.na(act_mss_rep$steps)),&quot;steps&quot;] &lt;- actMerge[which(is.na(act_mss_rep$steps)),&quot;steps.mn&quot;]</code></pre>
+<p>Sum, mean, median number of steps taken per day - Non-Missing Steps</p>
+<pre class="r"><code>SumByDayNoMss &lt;- aggregate(steps ~ date, act_mss_rep, sum)
+barplot(height=SumByDayNoMss$steps, names.arg=SumByDayNoMss$date, xlab=&quot;day&quot;, ylab=&quot;Median Number of Steps&quot;,main=&quot;Total Number of Steps Taken per Day (Non-Missing Steps)&quot;,col=&quot;blue&quot;)
+mean(SumByDayNoMss$steps)</code></pre>
+<pre><code>## [1] 10889.8</code></pre>
+<pre class="r"><code>median(SumByDayNoMss$steps)</code></pre>
+<pre><code>## [1] 11015</code></pre>
+<pre class="r"><code>abline(h=mean(SumByDayNoMss$steps, na.rm=TRUE), col=&quot;orange&quot;, lwd=2)
+abline(h=median(SumByDayNoMss$steps, na.rm=TRUE), col=&quot;black&quot;, lwd=2)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-7-1.png" title="" alt="" width="672" /></p>
+<p>Steps by Interval - Weekday vs Weekend</p>
+<pre class="r"><code>act_mss_rep$weekdays &lt;-weekdays(act_mss_rep$date)
+MeanByIntNoMssWknd &lt;- aggregate(steps ~ interval, act_mss_rep[act_mss_rep$weekdays %in% c(&quot;Saturday&quot;,&quot;Sunday&quot;),], mean)
+MeanByIntNoMssWkdy &lt;- aggregate(steps ~ interval, act_mss_rep[!(act_mss_rep$weekdays %in% c(&quot;Saturday&quot;,&quot;Sunday&quot;)),], mean)
+
+par(mfrow=c(2,1))
+plot(MeanByIntNoMssWknd$interval, MeanByIntNoMssWknd$steps, type=&quot;l&quot;, col=&quot;orange&quot;,main=&quot;Weekend&quot;,xlab=&quot;Interval&quot;,ylab=&quot;Average Num of Steps&quot;)
+plot(MeanByIntNoMssWkdy$interval, MeanByIntNoMssWkdy$steps, type=&quot;l&quot;, col=&quot;black&quot;,main=&quot;Weekday&quot;,xlab=&quot;Interval&quot;,ylab=&quot;Average Num of Steps&quot;)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-8-1.png" title="" alt="" width="672" /></p>
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
