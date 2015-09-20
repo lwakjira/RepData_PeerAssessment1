@@ -67,15 +67,14 @@ img {
 
 
 <p>Loading and preprocessing the data and necessary package</p>
-<pre class="r"><code>library(knitr)</code></pre>
-<pre><code>## Warning: package &#39;knitr&#39; was built under R version 3.2.2</code></pre>
-<pre class="r"><code>activity &lt;- &quot;./activity.csv&quot;
+<pre class="r"><code>library(knitr)
+activity &lt;- &quot;./activity.csv&quot;
 activity_data &lt;- read.table(activity, header=TRUE, sep=&quot;,&quot;, stringsAsFactors=FALSE, dec=&quot;.&quot;)
 activity_data$date &lt;- as.Date(activity_data$date, &quot;%Y-%m-%d&quot;)</code></pre>
 <p>Mean total number of steps taken per day</p>
 <pre class="r"><code>MeanByDay &lt;- aggregate(steps ~ date, activity_data, mean)
 barplot(height=MeanByDay$steps, names.arg=MeanByDay$date, xlab=&quot;day&quot;, ylab=&quot;Average Number of Steps&quot;,main=&quot;Average Total Number of Steps Taken per Day&quot;)</code></pre>
-<p><img src="PA1_template_files/figure-html/unnamed-chunk-2-1.png" title="" alt="" width="672" /></p>
+<p><img src="figure/unnamed-chunk-2-1.png" alt="plot of chunk unnamed-chunk-2" /></p>
 <p>Sum, mean, median number of steps taken per day</p>
 <pre class="r"><code>SumByDay &lt;- aggregate(steps ~ date, activity_data, sum)
 barplot(height=SumByDay$steps, names.arg=SumByDay$date, xlab=&quot;day&quot;, ylab=&quot;Median Number of Steps&quot;,main=&quot;Total Number of Steps Taken per Day&quot;,col=&quot;blue&quot;)
@@ -87,7 +86,7 @@ mean(SumByDay$steps)</code></pre>
 
 abline(h=mean(SumByDay$steps, na.rm=TRUE), col=&quot;orange&quot;, lwd=2)
 abline(h=median(SumByDay$steps, na.rm=TRUE), col=&quot;black&quot;, lwd=2)</code></pre>
-<p><img src="PA1_template_files/figure-html/unnamed-chunk-3-1.png" title="" alt="" width="672" /> Return interval with maximum steps</p>
+<p><img src="figure/unnamed-chunk-3-1.png" alt="plot of chunk unnamed-chunk-3" /> Return interval with maximum steps</p>
 <pre class="r"><code>na.omit(activity_data[activity_data$steps==max(activity_data$steps,na.rm=TRUE),])</code></pre>
 <pre><code>##       steps       date interval
 ## 16492   806 2012-11-27      615</code></pre>
@@ -108,7 +107,7 @@ mean(SumByDayNoMss$steps)</code></pre>
 <pre><code>## [1] 11015</code></pre>
 <pre class="r"><code>abline(h=mean(SumByDayNoMss$steps, na.rm=TRUE), col=&quot;orange&quot;, lwd=2)
 abline(h=median(SumByDayNoMss$steps, na.rm=TRUE), col=&quot;black&quot;, lwd=2)</code></pre>
-<p><img src="PA1_template_files/figure-html/unnamed-chunk-7-1.png" title="" alt="" width="672" /></p>
+<p><img src="figure/unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7" /></p>
 <p>Steps by Interval - Weekday vs Weekend</p>
 <pre class="r"><code>act_mss_rep$weekdays &lt;-weekdays(act_mss_rep$date)
 MeanByIntNoMssWknd &lt;- aggregate(steps ~ interval, act_mss_rep[act_mss_rep$weekdays %in% c(&quot;Saturday&quot;,&quot;Sunday&quot;),], mean)
@@ -117,7 +116,7 @@ MeanByIntNoMssWkdy &lt;- aggregate(steps ~ interval, act_mss_rep[!(act_mss_rep$w
 par(mfrow=c(2,1))
 plot(MeanByIntNoMssWknd$interval, MeanByIntNoMssWknd$steps, type=&quot;l&quot;, col=&quot;orange&quot;,main=&quot;Weekend&quot;,xlab=&quot;Interval&quot;,ylab=&quot;Average Num of Steps&quot;)
 plot(MeanByIntNoMssWkdy$interval, MeanByIntNoMssWkdy$steps, type=&quot;l&quot;, col=&quot;black&quot;,main=&quot;Weekday&quot;,xlab=&quot;Interval&quot;,ylab=&quot;Average Num of Steps&quot;)</code></pre>
-<p><img src="PA1_template_files/figure-html/unnamed-chunk-8-1.png" title="" alt="" width="672" /></p>
+<p><img src="figure/unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8" /></p>
 
 
 </div>
