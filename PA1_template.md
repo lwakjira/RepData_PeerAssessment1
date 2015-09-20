@@ -11,6 +11,18 @@ Loading and preprocessing the data and necessary package
 library(knitr)
 activity <- "./activity.csv"
 activity_data <- read.table(activity, header=TRUE, sep=",", stringsAsFactors=FALSE, dec=".")
+```
+
+```
+## Warning in file(file, "rt"): cannot open file './activity.csv': No such
+## file or directory
+```
+
+```
+## Error in file(file, "rt"): cannot open the connection
+```
+
+```r
 activity_data$date <- as.Date(activity_data$date, "%Y-%m-%d")
 ```
 
